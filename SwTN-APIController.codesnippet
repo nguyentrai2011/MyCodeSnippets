@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDECodeSnippetCompletionPrefix</key>
+	<string>SwTN-APIController </string>
+	<key>IDECodeSnippetCompletionScopes</key>
+	<array>
+		<string>CodeExpression</string>
+	</array>
+	<key>IDECodeSnippetContents</key>
+	<string>import Foundation
+import Alamofire
+import AlamofireImage
+import SwiftyJSON
+
+typealias ErrorResponseBlock = (_ error: String?) -&gt; Void
+typealias ResponseBlock = (_ errorResponse: String?, _ json: JSON?) -&gt; Void
+
+enum HeaderType{
+    case none
+    case token
+}
+
+final class DataInfo{
+    
+    var withName: String!
+    var fileName: String!
+    var mimeType: String!
+    
+    init(withName: String, fileName: String, mimeType: String){
+        self.withName = withName
+        self.fileName = fileName
+        self.mimeType = mimeType
+    }
+    
+}
+
+struct APIController{
+    
+    //MARK: - DEFAULT REQUEST
+    static func request(url: String, params: Parameters? = nil, result: @escaping ResponseBlock) {
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        
+        print(url)
+        ProgressView.shared.show()
+        
+        // Check internet connection
+        if !NetworkReachabilityManager()!.isReachable {
+            let alertController = UIAlertController(title: "No Internet Connection", message: "Make sure your device is connected to the internet.", preferredStyle: UIAlertControllerStyle.alert)
+            let okAction = UIAlertAction(title: "OK", style: .default, handler: { (result : UIAlertAction) in
+                return
+            })
+            alertController.addAction(okAction)
+            //
+            var hostVC = appDelegate.window?.rootViewController
+            while let next = hostVC?.presentedViewController {
+                hostVC = next
+            }
+            hostVC?.present(alertController, animated: true, completion: nil)
+        }
+        
+        Alamofire.request(url, method: .get, parameters: params, headers: [:]).validate().responseJSON { (responseObject) -&gt; Void in
+            ProgressView.shared.hide()
+            if responseObject.response?.statusCode == 403 {
+                
+            }
+            switch responseObject.result{
+            case .success(let data):
+                let response = JSON(data)
+                result(nil, response)
+            case .failure(let error):
+                if let data = responseObject.data {
+                    
+                    //Handle error response
+                    guard let json = String(data: data, encoding: .utf8) else { return }
+                    let response = JSON(parseJSON: json)
+                    guard let message = response[APIKeyword.errors].string else {
+                        result(error.localizedDescription, nil)
+                        return
+                    }
+                    result(message,nil)
+                    
+                }
+                
+            }
+        }
+    }
+    
+    
+    static func request(manager: APIManager, params: Parameters? = nil, result: @escaping ResponseBlock) {
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        
+        print(manager.url)
+        ProgressView.shared.show()
+        
+        // Check internet connection
+        if NetworkReachabilityManager()!.isReachable {
+            let alertController = UIAlertController(title: "No Internet Connection", message: "Make sure your device is connected to the internet.", preferredStyle: UIAlertControllerStyle.alert)
+            let okAction = UIAlertAction(title: "OK", style: .default, handler: { (result : UIAlertAction) in
+                return
+            })
+            alertController.addAction(okAction)
+            //
+            var hostVC = appDelegate.window?.rootViewController
+            while let next = hostVC?.presentedViewController {
+                hostVC = next
+            }
+            hostVC?.present(alertController, animated: true, completion: nil)
+        }
+        
+        Alamofire.request(manager.url, method: manager.method, parameters: params, headers: manager.header).validate().responseJSON { (responseObject) -&gt; Void in
+            ProgressView.shared.hide()
+            if responseObject.response?.statusCode == 403 {
+                //                appDelegate.logout()
+                //print(responseObject)
+            }
+            switch responseObject.result{
+            case .success(let data):
+                let response = JSON(data)
+                result(nil, response)
+            case .failure(let error):
+                if let data = responseObject.data {
+                    
+                    //Handle error response
+                    guard let json = String(data: data, encoding: .utf8) else { return }
+                    let response = JSON(parseJSON: json)
+                    guard let message = response[APIKeyword.errors].string else {
+                        result(error.localizedDescription, nil)
+                        return
+                    }
+                    result(message,nil)
+                    
+                }
+                
+            }
+        }
+    }
+    
+    //MARK: - MULTIPART UPLOAD
+    
+    static func upload(manager: APIManager, params: [String: AnyObject]!, data: Data?, info: DataInfo, result: @escaping ErrorResponseBlock){
+        ProgressView.shared.show()
+        Alamofire.upload(multipartFormData: { (multipartFormData) in
+            
+            if let data = data{
+                multipartFormData.append(data, withName: info.withName, fileName: info.fileName, mimeType: info.mimeType)
+            }
+            
+            if params != nil{
+                for (key,value) in params{
+                    multipartFormData.append(value.data!(using: String.Encoding.utf8.rawValue)!, withName: key)
+                }
+            }
+            
+        }, to: manager.url, headers: manager.header) { (resultUpload) in
+            ProgressView.shared.hide()
+            switch resultUpload{
+            case .success(let upload,_,_):
+                upload.responseJSON { response in
+                    if let value = response.result.value {
+                        print("JSON: \(value)")
+                        
+                        // Handle data reponse
+                        
+                    }
+                }
+            case .failure(let error):
+                result(error.localizedDescription)
+            }
+        }
+    }
+    
+}</string>
+	<key>IDECodeSnippetIdentifier</key>
+	<string>7AFD23A9-4953-4D8C-A2AB-C081B1CE60C8</string>
+	<key>IDECodeSnippetLanguage</key>
+	<string>Xcode.SourceCodeLanguage.Swift</string>
+	<key>IDECodeSnippetTitle</key>
+	<string>SwTN-APIController </string>
+	<key>IDECodeSnippetUserSnippet</key>
+	<true/>
+	<key>IDECodeSnippetVersion</key>
+	<integer>2</integer>
+</dict>
+</plist>

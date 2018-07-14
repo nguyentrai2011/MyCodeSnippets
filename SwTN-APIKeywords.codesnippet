@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDECodeSnippetCompletionPrefix</key>
+	<string>SwTN-APIKeywords</string>
+	<key>IDECodeSnippetCompletionScopes</key>
+	<array>
+		<string>All</string>
+	</array>
+	<key>IDECodeSnippetContents</key>
+	<string>struct APIKeyword {
+    
+    static let errors = "errors"
+    
+    struct Response {
+        static let status = "status"
+        static let statusCode = "status_code"
+        static let message = "message"
+        static let data = "data"
+    }
+    
+    struct ParamRequest {
+        
+    }
+    
+    struct Paginator {
+        static let page = "page"
+        static let limit = "limit"
+        static let totalPages = "total_pages"
+    }
+}
+
+struct Header {
+    
+    static let authorization = "Authorization"
+    static let contentType = "Content-Type"
+    
+    struct Content{
+        static let basic = "Basic"
+    }
+    
+}</string>
+	<key>IDECodeSnippetIdentifier</key>
+	<string>EACF2E97-5BB2-4291-886B-D09405CCD956</string>
+	<key>IDECodeSnippetLanguage</key>
+	<string>Xcode.SourceCodeLanguage.Generic</string>
+	<key>IDECodeSnippetTitle</key>
+	<string>SwTN-APIKeywords</string>
+	<key>IDECodeSnippetUserSnippet</key>
+	<true/>
+	<key>IDECodeSnippetVersion</key>
+	<integer>2</integer>
+</dict>
+</plist>
